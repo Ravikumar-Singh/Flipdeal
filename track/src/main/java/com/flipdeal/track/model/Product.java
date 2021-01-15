@@ -19,21 +19,17 @@ public class Product {
 	@Column(name = "id")
 	public int id;
 	
-	@Column(name = "name")
-	public String name;
+	@Column(name = "product")
+	public String product;
 	
-	@Column(name = "type")
-	public String type;
+	@Column(name = "category")
+	public String category;
 	
-	@Column(name = "cost")
-	public Double cost;
+	@Column(name = "price")
+	public Double price;
 	
-	@Column(name = "country")
-	public String country;
-	
-	@Column(name = "productId")
-	public String  productId;
-	
+	@Column(name = "origin")
+	public String origin;
 	
 	@Column(name = "rating")
 	public Double rating;
@@ -41,6 +37,9 @@ public class Product {
 	@Column(name = "inventory")
 	public int inventory;
 	
-	@Column(name = "status")
-	public String  status;
+	@Column(name = "arrival")
+	public String  arrival;
+	
+	@Column(name = "currency")
+	public String  currency;
 }
