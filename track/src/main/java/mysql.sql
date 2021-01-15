@@ -1,16 +1,20 @@
-CREATE TABLE `Product` (
+
+CREATE TABLE `product` (
   `id` int(11) NOT NULL,
-  `productId` int(11) NOT NULL,
-     `name` varchar(20) NOT NULL,
-  `type` varchar(1000) DEFAULT NULL,
-  `cost` varchar(50) NOT NULL,
-  `country`varchar(50) NOT NULL,
- 
+  `product` varchar(200) NOT NULL,
+  `category` varchar(1000) DEFAULT NULL,
+  `price` float NOT NULL,
+  `currency` varchar(20) NOT NULL,
+  `rating` float DEFAULT NULL,
+  `origin` varchar(50) DEFAULT NULL,
+  `inventory` int(5) NOT NULL,
+  `arrival` varchar(100) DEFAULT NULL,
   `lastUpdatedTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `Product` ADD PRIMARY KEY( `id`);
+ALTER TABLE `product`
+  ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `Product` CHANGE `productId` `productId` VARCHAR(11) NOT NULL;
-ALTER TABLE `Product` ADD `set` VARCHAR(10) NULL DEFAULT NULL AFTER `country`;
+ALTER TABLE `product`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
