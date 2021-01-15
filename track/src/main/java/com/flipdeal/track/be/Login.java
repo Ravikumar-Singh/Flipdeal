@@ -29,36 +29,37 @@ public class Login {
 		JSONArray allData=new JSONArray(response);
 		String currencyDataResponse=servie.getData("https://api.exchangeratesapi.io/latest");
 		JSONObject currencyData=new JSONObject(currencyDataResponse).getJSONObject("rates");
-		
+		ObjectMapper mapper=new ObjectMapper();
 		for(int i=0;i<allData.length();i++)
 		{
+			try
+			{
 			JSONObject productDetail = allData.getJSONObject(i);
-			Product product = productRepo.findByNameAndType(productDetail.getString("product"),
+			Product product = productRepo.findByProductAndCategory(productDetail.getString("product"),
 					productDetail.getString("category"));
 			if (product == null) {
-				product = new Product();
-				product.cost = 
-						cunvertCurrency(productDetail.getString("currency"), productDetail.get("price").toString(),currencyData);
-				product.country = productDetail.getString("origin");
-				product.name = productDetail.getString("product");
-				product.productId = "id-" + productDetail.getString("product");
-				product.type = productDetail.getString("category");
-				product.rating= Double.parseDouble(productDetail.get("rating").toString());
-				product.inventory=(int) productDetail.get("inventory");
-				product.status=getArrival("arrival", productDetail);
+				product=mapper.readValue(productDetail.toString(), Product.class);
+				product.price = cunvertCurrency(productDetail.getString("currency"), productDetail.get("price").toString(),currencyData);
+				product.currency="INR";
+				
 				productRepo.save(product);
 			} else {
-				product.cost = 
+				product.price = 
 						cunvertCurrency(productDetail.getString("currency"), productDetail.get("price").toString(),currencyData);
-				product.country = productDetail.getString("origin");
-				product.name = productDetail.getString("product");
-				product.productId = "id-" + productDetail.getString("product");
+				product.origin = productDetail.getString("origin");
+				product.product = productDetail.getString("product");
 				
-				product.type = productDetail.getString("category");
+				product.category = productDetail.getString("category");
 				product.rating=Double.parseDouble(productDetail.get("rating").toString());
 				product.inventory=(int) productDetail.get("inventory");
-				product.status=getArrival("arrival", productDetail);
+				product.arrival=getArrival("arrival", productDetail);
+				product.currency="INR";
 				productRepo.save(product);
+			}
+			}
+			catch (Exception e) {
+				System.out.println(e+" while dumping data");
+				e.printStackTrace();
 			}
 
 		}
@@ -111,32 +112,32 @@ public class Login {
 			JSONObject prodWithOffer=new JSONObject(mapper.writeValueAsString(product));
 			JSONObject offerDetails=new JSONObject();
 
-			if(product.country.equalsIgnoreCase("Africa"))
+			if(product.origin.equalsIgnoreCase("Africa"))
 			{
-				countryDiff=((product.cost*7)/100);
+				countryDiff=((product.price*7)/100);
 				countryofferMessage="7% Discount";
 			}
 			
 			else if(product.rating<=2)
 			{
 				if (product.rating == 2) {
-					ratingDiff = ((product.cost * 4) / 100);
+					ratingDiff = ((product.price * 4) / 100);
 					ratingMessage="4% Discount";
 				} else {
-					ratingDiff = ((product.cost * 8) / 100);
+					ratingDiff = ((product.price * 8) / 100);
 					ratingMessage="8% Discount";
 				}
 			}
 			
 			
-			else if((product.type.equalsIgnoreCase("electronics")||product.type.equalsIgnoreCase("furnishing")) && product.cost>=500)
+			else if((product.category.equalsIgnoreCase("electronics")||product.category.equalsIgnoreCase("furnishing")) && product.price>=500)
 			{
 				porductDiff=100.0d;
 				productmessage="100rs off";
 			}
-			else if(product.cost>1000 )
+			else if(product.price>1000 )
 			{
-				overCostDiff=((product.cost * 2) / 100);
+				overCostDiff=((product.price * 2) / 100);
 				overCostmessage="2% Discount";
 				
 			}
@@ -177,13 +178,14 @@ public class Login {
 		    }
 		    
 			
-			offerDetails.put("Amount", product.cost-biggestDiscout);
+			offerDetails.put("Amount", product.price-biggestDiscout);
 			offerDetails.put("Discount tag", BiggestOfferMessage);
 			prodWithOffer.put("discout", offerDetails);
 			allProdWithOffer.put(prodWithOffer);
 			}
 			catch (Exception e) {
 				System.out.println(e +"while setting offer A");
+				e.printStackTrace();
 			}
 		}
 		return allProdWithOffer;
@@ -213,17 +215,17 @@ public class Login {
 				
 				if(product.inventory>20)
 				{
-					inventoryDiff=((product.cost * 12) / 100);
+					inventoryDiff=((product.price * 12) / 100);
 					inventorymessage="12% discount";
 				}
-				else if (product.status.equalsIgnoreCase("new"))
+				else if (product.arrival!=null&&!product.arrival.equalsIgnoreCase("null") && product.arrival.equalsIgnoreCase("new"))
 				{
-					 statustDiff=((product.cost * 7) / 100);
+					 statustDiff=((product.price * 7) / 100);
 					 statusmessage="7% discount";
 				}
-				else if(product.cost>1000 )
+				else if(product.price>1000 )
 				{
-					overCostDiff=((product.cost * 2) / 100);
+					overCostDiff=((product.price * 2) / 100);
 					overCostmessage="2% Discount";
 					
 				}
@@ -250,7 +252,7 @@ public class Login {
 			    {
 			    	BiggestOfferMessage="2% Discount";
 			    }
-			    offerDetails.put("Amount", product.cost-biggestDiscout);
+			    offerDetails.put("Amount", product.price-biggestDiscout);
 				offerDetails.put("Discount tag", BiggestOfferMessage);
 				prodWithOffer.put("discout", offerDetails);
 				allProdWithOffer.put(prodWithOffer);
@@ -258,6 +260,7 @@ public class Login {
 			}
 			catch (Exception e) {
 				System.out.println(e +"while setting offer B");
+				e.printStackTrace();
 			}
 		}
 		return allProdWithOffer.toString();
