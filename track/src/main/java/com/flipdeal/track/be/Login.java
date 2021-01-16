@@ -110,6 +110,7 @@ public class Login {
 			String overCostmessage="";
 			Product product=allProd.get(i);
 			JSONObject prodWithOffer=new JSONObject(mapper.writeValueAsString(product));
+			prodWithOffer.remove("id");
 			JSONObject offerDetails=new JSONObject();
 
 			if(product.origin.equalsIgnoreCase("Africa"))
@@ -211,6 +212,7 @@ public class Login {
 				String statusmessage="";
 				Product product=allProd.get(i);
 				JSONObject prodWithOffer=new JSONObject(mapper.writeValueAsString(product));
+				prodWithOffer.remove("id");
 				JSONObject offerDetails=new JSONObject();
 				
 				if(product.inventory>20)
